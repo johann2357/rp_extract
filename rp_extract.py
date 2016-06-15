@@ -57,11 +57,11 @@ phons     = np.asarray(phons)
 
 # Loudness Curves
 
-eq_loudness = np.array([[55,  40, 32, 24, 19, 14, 10,  6,  4,  3,  2,   2, 0,-2,-5,-4, 0,  5, 10, 14, 25, 35], 
-                        [66,  52, 43, 37, 32, 27, 23, 21, 20, 20, 20,  20,19,16,13,13,18, 22, 25, 30, 40, 50], 
-                        [76,  64, 57, 51, 47, 43, 41, 41, 40, 40, 40,39.5,38,35,33,33,35, 41, 46, 50, 60, 70], 
-                        [89,  79, 74, 70, 66, 63, 61, 60, 60, 60, 60,  59,56,53,52,53,56, 61, 65, 70, 80, 90], 
-                        [103, 96, 92, 88, 85, 83, 81, 80, 80, 80, 80,  79,76,72,70,70,75, 79, 83, 87, 95,105], 
+eq_loudness = np.array([[55,  40, 32, 24, 19, 14, 10,  6,  4,  3,  2,   2, 0,-2,-5,-4, 0,  5, 10, 14, 25, 35],
+                        [66,  52, 43, 37, 32, 27, 23, 21, 20, 20, 20,  20,19,16,13,13,18, 22, 25, 30, 40, 50],
+                        [76,  64, 57, 51, 47, 43, 41, 41, 40, 40, 40,39.5,38,35,33,33,35, 41, 46, 50, 60, 70],
+                        [89,  79, 74, 70, 66, 63, 61, 60, 60, 60, 60,  59,56,53,52,53,56, 61, 65, 70, 80, 90],
+                        [103, 96, 92, 88, 85, 83, 81, 80, 80, 80, 80,  79,76,72,70,70,75, 79, 83, 87, 95,105],
                         [118,110,107,105,103,102,101,100,100,100,100,  99,97,94,90,90,95,100,103,105,108,115]])
 
 loudn_freq = np.array([31.62, 50, 70.7, 100, 141.4, 200, 316.2, 500, 707.1, 1000, 1414, 1682, 2000, 2515, 3162, 3976, 5000, 7071, 10000, 11890, 14140, 15500])
@@ -78,16 +78,16 @@ for bsi in bark:
 
     while j < len(loudn_freq) and bsi > loudn_freq[j]:
         j += 1
-    
+
     j -= 1
-    
+
     if np.where(loudn_freq == bsi)[0].size != 0: # loudness value for this frequency already exists
         loudn_bark[:,i] = eq_loudness[:,np.where(loudn_freq == bsi)][:,0,0]
     else:
         w1 = 1 / np.abs(loudn_freq[j] - bsi)
         w2 = 1 / np.abs(loudn_freq[j + 1] - bsi)
         loudn_bark[:,i] = (eq_loudness[:,j]*w1 + eq_loudness[:,j+1]*w2) / (w1 + w2)
-    
+
     i += 1
 
 
@@ -116,7 +116,7 @@ def nextpow2(num):
     n = 2
     i = 1
     while n < num:
-        n *= 2 
+        n *= 2
         i += 1
     return i
 
@@ -142,14 +142,14 @@ def periodogram(x,win,Fs=None,nfft=1024):
 
     #if Fs == None:
     #    Fs = 2 * np.pi         # commented out because unused
-   
+
     U  = np.dot(win.conj().transpose(), win) # compensates for the power of the window.
     Xx = fft((x * win),nfft) # verified
     P  = Xx*np.conjugate(Xx)/U
-    
+
     # Compute the 1-sided or 2-sided PSD [Power/freq] or mean-square [Power].
     # Also, compute the corresponding freq vector & freq units.
-    
+
     # Generate the one-sided spectrum [Power] if so wanted
     if nfft % 2 != 0:
         select = np.arange((nfft+1)/2)  # ODD
@@ -217,7 +217,7 @@ def calc_spectrogram(wavsegment,fft_window_size,fft_overlap = 0.5,real_values=Tr
 def calc_statistical_features(matrix):
 
     result = np.zeros((matrix.shape[0],7))
-    
+
     result[:,0] = np.mean(matrix, axis=1)
     result[:,1] = np.var(matrix, axis=1, dtype=np.float64) # the values for variance differ between MATLAB and Numpy!
     result[:,2] = stats.skew(matrix, axis=1)
@@ -225,9 +225,9 @@ def calc_statistical_features(matrix):
     result[:,4] = np.median(matrix, axis=1)
     result[:,5] = np.min(matrix, axis=1)
     result[:,6] = np.max(matrix, axis=1)
-    
+
     result[np.where(np.isnan(result))] = 0
-    
+
     return result
 
 
@@ -386,7 +386,7 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
                 step_width          =  1,      # >=1  each step_width'th sample window is analyzed
                 n_bark_bands        = 24,      # 2..24 number of desired Bark bands (from low frequencies to high) (e.g. 15 or 20 or 24 for 11, 22 and 44 kHz audio respectively) (1 delivers undefined output)
                 mod_ampl_limit      = 60,      # 2..257 number of modulation frequencies on x-axis
-                
+
                 # enable/disable parts of feature extraction
                 transform_bark                 = True,  # [S2] transform to Bark scale
                 spectral_masking               = True,  # [S3] compute Spectral Masking
@@ -444,76 +444,90 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
 
     # segment_size should always be ~6 sec, fft_window_size should always be ~ 23ms
 
-    if (samplerate == 11025):
-        segment_size    = 2**16
+    if samplerate == 11025:
+        segment_size = 2 ** 16
         fft_window_size = 256
-    elif (samplerate == 22050):
-        segment_size    = 2**17
+    elif samplerate == 22050:
+        segment_size = 2 ** 17
         fft_window_size = 512
-    elif (samplerate == 44100):
-        segment_size    = 2**18
+    elif samplerate == 44100:
+        segment_size = 2 ** 18
         fft_window_size = 1024
     else:
         # throw error not supported
-        raise ValueError('A sample rate of ' + str(samplerate) + " is not supported (only 11, 22 and 44 kHz).")
-    
+        raise ValueError(
+            'A sample rate of %s is not supported (only 11, 22 and 44 kHz)' % (
+                str(samplerate)
+            )
+        )
+
     # calculate frequency values on y-axis (for Bark scale calculation):
     # freq_axis = float(samplerate)/fft_window_size * np.arange(0,(fft_window_size/2) + 1)
     # linear space from 0 to samplerate/2 in (fft_window_size/2+1) steps
-    freq_axis = np.linspace(0, float(samplerate)/2, int(fft_window_size//2) + 1, endpoint=True)
-
+    freq_axis = np.linspace(
+        0, float(samplerate) / 2, int(fft_window_size // 2) + 1, endpoint=True)
 
     # CONVERT STEREO TO MONO: Average the channels
-    if wavedata.ndim > 1:                    # if we have more than 1 dimension
-        if wavedata.shape[1] == 1:           # check if 2nd dimension is just 1
-            wavedata = wavedata[:,0]         # then we take first and only channel
+    if wavedata.ndim > 1:                     # if we have more than 1 dimension
+        if wavedata.shape[1] == 1:            # check if 2nd dimension is just 1
+            wavedata = wavedata[:, 0]         # then we take first and only channel
         else:
-            wavedata = np.mean(wavedata, 1)  # otherwise we average the signals over the channels
-
+            wavedata = np.mean(wavedata, 1)   # otherwise we average the signals over the channels
 
     # SEGMENT INITIALIZATION
     # find positions of wave segments
-    
     skip_seg = skip_leadin_fadeout
-    seg_pos  = np.array([1, segment_size]) # array with 2 entries: start and end position of selected segment
+    seg_pos = np.array([1, segment_size])     # array with 2 entries: start and end position of selected segment
 
     seg_pos_list = []  # list to store all the individual segment positions (only when return_segment_features == True)
 
     # if file is too small, don't skip leadin/fadeout and set step_width to 1
-    if ((skip_leadin_fadeout > 0) or (step_width > 1)):
-
-        duration =  wavedata.shape[0]/samplerate
+    if (skip_leadin_fadeout > 0) or (step_width > 1):
+        duration = wavedata.shape[0] / samplerate
 
         if (duration < 45):
             step_width = 1
-            skip_seg   = 0
+            skip_seg = 0
             # TODO: do this as a warning?
-            if verbose: print "Duration < 45 seconds: setting step_width to 1 and skip_leadin_fadeout to 0."
+            if verbose:
+                print "Duration < 45 seconds: setting step_width to 1 and skip_leadin_fadeout to 0."
 
         else:
             # advance by number of skip_seg segments (i.e. skip lead_in)
             seg_pos = seg_pos + segment_size * skip_seg
-    
+
     # calculate number of segments
-    n_segments = int(np.floor( (np.floor( (wavedata.shape[0] - (skip_seg*2*segment_size)) / segment_size ) - 1 ) / step_width ) + 1)
-    if verbose: print "Analyzing", n_segments, "segments"
+    n_segments = int(np.floor(
+        (
+            np.floor(
+                (
+                    wavedata.shape[0] - (skip_seg * 2 * segment_size)
+                ) / segment_size
+            ) - 1
+        ) / step_width
+    ) + 1)
+    if verbose:
+        print "Analyzing", n_segments, "segments"
 
     if n_segments == 0:
-        raise ValueError("Not enough data to analyze! Minimum sample length needs to be " +
-                         str(segment_size) + " (5.94 seconds) but it is " + str(wavedata.shape[0]) +
-                         " (" + str(round(wavedata.shape[0] * 1.0 / samplerate,2)) + " seconds)")
+        raise ValueError(
+            "Not enough data to analyze! Minimum sample length needs to be " +
+            str(segment_size) + " (5.94 seconds) but it is " +
+            str(wavedata.shape[0]) +
+            " (" + str(round(wavedata.shape[0] * 1.0 / samplerate, 2)) +
+            " seconds)"
+        )
 
     # initialize output
     features = {}
 
     ssd_list = []
-    sh_list = []
-    rh_list  = []
+    rh_list = []
     rh2_list = []
-    rp_list  = []
+    rp_list = []
     mvd_list = []
 
-    hearing_threshold_factor = 0.0875 * (2**15)
+    hearing_threshold_factor = 0.0875 * (2 ** 15)
 
     # SEGMENT ITERATION
 
@@ -522,30 +536,29 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         # keep track of segment position
         if return_segment_features:
             seg_pos_list.append(seg_pos)
-        
+
         # EXTRACT WAVE SEGMENT that will be processed
         # data is assumed to be mono waveform
-        wavsegment = wavedata[seg_pos[0]-1:seg_pos[1]] # verified
-        
+        wavsegment = wavedata[seg_pos[0] - 1: seg_pos[1]]  # verified
+
         # v210715
         # Python : [-0.0269165  -0.02128601 -0.01864624 -0.01893616 -0.02166748 -0.02694702 -0.03457642 -0.04333496 -0.05166626 -0.05891418]
         # Matlab : [-0,0269165  -0,02125549 -0,01861572 -0,01893616 -0,02165222 -0,02694702 -0,03456115 -0,04331970 -0,05166626 -0,05891418]
 
-        
         # adjust hearing threshold # TODO: move after stereo-mono conversion above?
         wavsegment = wavsegment * hearing_threshold_factor
 
         # v210715
         # Python : [ -77.175    -61.03125  -53.4625   -54.29375  -62.125    -77.2625   -99.1375  -124.25    -148.1375  -168.91875]
-        # Matlab : [ -77,175    -60,94375  -53,3750   -54,29375  -62,081    -77,2625   -99,0938  -124,21    -148,1375  -168,91875]        
+        # Matlab : [ -77,175    -60,94375  -53,3750   -54,29375  -62,081    -77,2625   -99,0938  -124,21    -148,1375  -168,91875]
 
-        matrix = calc_spectrogram(wavsegment,fft_window_size)
+        matrix = calc_spectrogram(wavsegment, fft_window_size)
 
         # v210715
-        #Python:   0.01372537     0.51454915    72.96077581   84.86663379   2.09940049    3.29631279   97373.2756834      23228.2065494       2678.44451741     30467.235416   
-        #      :  84.50635406    58.32826049  1263.82538188  234.11858349  85.48176796   97.26094525  214067.91208223   3570917.53366476   2303291.96676741   1681002.94519665 
+        #Python:   0.01372537     0.51454915    72.96077581   84.86663379   2.09940049    3.29631279   97373.2756834      23228.2065494       2678.44451741     30467.235416
+        #      :  84.50635406    58.32826049  1263.82538188  234.11858349  85.48176796   97.26094525  214067.91208223   3570917.53366476   2303291.96676741   1681002.94519665
         #      : 171.47168402  1498.04129116  3746.45491915  153.01444364  37.20801758  177.74229702  238810.1975412    3064388.50572536   5501187.79635479   4172009.81345923
-                                                                         
+
         #Matlab:   0,01528259     0,49653179    73,32978523   85,38774541   2,00416767    3,36618763   97416,24267209     23239,84650814      2677,01521862     30460,9231041364
         #      :  84,73805309    57,84524803  1263,40594029  235,62185973  85,13826606   97,61122652  214078,02415144   3571346,74831746   2303286,74666381   1680967,41922679
         #      : 170,15377915  1500,98052242  3744,98456435  154,14108817  36,69362260  177,48982263  238812,02171250   3064642,99278220   5501230,26588318   4172058,72803277
@@ -558,9 +571,9 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
             matrix = transform2bark(matrix,freq_axis,n_bark_bands)
 
         # v210715
-        # Python:    255.991763   1556.884100   5083.2410768    471.9996609   124.789186   278.299555  550251.385306   6658534.245939   7807158.207639  5883479.99407189 
-        #       :  77128.354925  10446.109041  22613.8525735  13266.2502432  2593.395039  1367.697057  675114.554043  23401741.536499   6300109.471193  8039710.71759598 
-        #       : 127165.795400  91270.354107  15240.3501050  16291.2234730  1413.851495  2166.723800  868138.817452  20682384.237884   8971171.605009  5919089.97818692 
+        # Python:    255.991763   1556.884100   5083.2410768    471.9996609   124.789186   278.299555  550251.385306   6658534.245939   7807158.207639  5883479.99407189
+        #       :  77128.354925  10446.109041  22613.8525735  13266.2502432  2593.395039  1367.697057  675114.554043  23401741.536499   6300109.471193  8039710.71759598
+        #       : 127165.795400  91270.354107  15240.3501050  16291.2234730  1413.851495  2166.723800  868138.817452  20682384.237884   8971171.605009  5919089.97818692
 
         # Matlab:    254,907114   1559,322302    5081,720289    475,1506933   123,836056    278,46723  550306,288536   6659229,587607   7807194,027765   5883487,07036370
         #       :  77118,196343  10447,961479   22605,559124  13266,4432995  2591,064037   1368,48462  675116,996782  23400723,570438   6300124,132022   8039688,83884099
@@ -570,12 +583,12 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         # Spectral Masking
         if spectral_masking:
             matrix = do_spectral_masking(matrix)
-            
+
         # v210715
-        # Python:  12978.051641    3416.109125   8769.913963   2648.888265   547.12360   503.50224   660888.17361  10480839.33617   8840234.405272   7193404.23970964 
-        #       : 100713.471006   27602.656332  27169.741240  16288.350176  2887.60281  1842.05959  1021358.42618  29229962.41626  10653981.441005  11182818.62910279 
-        #       : 426733.607945  262537.326945  43522.106075  41091.381283  4254.39289  4617.45877  1315036.85377  31353824.35688  12417010.121754   9673923.23590653 
-        
+        # Python:  12978.051641    3416.109125   8769.913963   2648.888265   547.12360   503.50224   660888.17361  10480839.33617   8840234.405272   7193404.23970964
+        #       : 100713.471006   27602.656332  27169.741240  16288.350176  2887.60281  1842.05959  1021358.42618  29229962.41626  10653981.441005  11182818.62910279
+        #       : 426733.607945  262537.326945  43522.106075  41091.381283  4254.39289  4617.45877  1315036.85377  31353824.35688  12417010.121754   9673923.23590653
+
         # Matlab:  12975,335615     3418,81282   8767,062187   2652,061105   545,79379   503,79683   660943,32199  10481368,76411   8840272,477464   7193407,85259461
         #       : 100704,175421    27602,34142  27161,901160  16288,924458  2884,94883  1842,86020  1021368,99046  29229118,99738  10653999,341989  11182806,7524195
         #       : 426751,992198   262523,89306  43524,970883  41085,415594  4253,42029  4617,35691  1314966,73269  31353021,99155  12416968,806879   9673951,88376021
@@ -586,24 +599,24 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
             matrix = transform2db(matrix)
 
         # v210715
-        # Python: 41.13209498  35.33531736  39.42995333  34.23063639  27.38085455  27.02001413  58.2012798   70.20396064  69.46463781  68.56934467 
-        #       : 50.03087564  44.40950878  44.34085502  42.11877097  34.60537456  32.65303677  60.09178176  74.65828257  70.27511936  70.48551281 
-        #       : 56.30156848  54.19191059  46.38709903  46.1375074   36.28837595  36.64403027  61.18937924  74.96290521  70.94017035  69.85602637 
-        
+        # Python: 41.13209498  35.33531736  39.42995333  34.23063639  27.38085455  27.02001413  58.2012798   70.20396064  69.46463781  68.56934467
+        #       : 50.03087564  44.40950878  44.34085502  42.11877097  34.60537456  32.65303677  60.09178176  74.65828257  70.27511936  70.48551281
+        #       : 56.30156848  54.19191059  46.38709903  46.1375074   36.28837595  36.64403027  61.18937924  74.96290521  70.94017035  69.85602637
+
         # Matlab: 41,13118599  35,33875324  39,42854087  34,23583526  27,37028596  27,02255437  58,20164218  70,20418000  69,46465651  68,56934684
         #       : 50,03047477  44,40945923  44,33960164  42,11892409  34,60138115  32,65492392  60,09182668  74,65815725  70,27512665  70,48550820
         #       : 56,30175557  54,19168835  46,38738489  46,13687684  36,28738298  36,64393446  61,18914765  74,96279407  70,94015590  69,85603922
 
-        
+
         # Transform Phon
         if transform_phon:
             matrix = transform2phon(matrix)
 
         # v210715
-        # Python: 25.90299283  17.82310731  23.4713619   16.37852452   7.42111749   6.94924924  47.58029453  60.22662293  59.43646085  58.49404702 
-        #       : 47.03087564  41.40950878  41.34085502  38.89846372  29.5067182   27.06629597  57.09178176  71.65828257  67.27511936  67.48551281 
-        #       : 55.02273887  52.91308099  45.10826943  44.8586778   34.3678058   34.769195    59.91054964  73.68407561  69.66134075  68.57719676 
-        
+        # Python: 25.90299283  17.82310731  23.4713619   16.37852452   7.42111749   6.94924924  47.58029453  60.22662293  59.43646085  58.49404702
+        #       : 47.03087564  41.40950878  41.34085502  38.89846372  29.5067182   27.06629597  57.09178176  71.65828257  67.27511936  67.48551281
+        #       : 55.02273887  52.91308099  45.10826943  44.8586778   34.3678058   34.769195    59.91054964  73.68407561  69.66134075  68.57719676
+
         # Matlab: 25,90169428  17,82760039  23,46934410  16,38532303   7,40729702   6,95257110  47,58067598  60,22686667  59,43648053  58,49404931
         #       : 47,03047477  41,40945923  41,33960164  38,89865511  29,50172644  27,06865491  57,09182668  71,65815725  67,27512665  67,48550820
         #       : 55,02292596  52,91285875  45,10855528  44,85804723  34,36668514  34,76908687  59,91031805  73,68396446  69,66132629  68,57720962
@@ -614,34 +627,34 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
             matrix = transform2sone(matrix)
 
         # v210715
-        # Python: 0.31726931   0.11815598   0.24452297   0.09450863   0.01167179   0.009812     1.6911791    4.06332931   3.84676603   3.60351463 
-        #       : 1.62798518   1.10263162   1.09739697   0.92887876   0.44759842   0.35631529   3.26974511   8.97447943   6.62312431   6.72041945 
+        # Python: 0.31726931   0.11815598   0.24452297   0.09450863   0.01167179   0.009812     1.6911791    4.06332931   3.84676603   3.60351463
+        #       : 1.62798518   1.10263162   1.09739697   0.92887876   0.44759842   0.35631529   3.26974511   8.97447943   6.62312431   6.72041945
         #       : 2.83288863   2.44749871   1.42486669   1.40042797   0.669685     0.69054778   3.97527582  10.327417     7.81439442   7.24868691
-        
+
         # Matlab: 0,31722728   0,11823469   0,24446743   0,09461230   0,01161444   0,00982439   1,69122381   4,06339796   3,84677128   3,60351520
         #       : 1,62793994   1,10262783   1,09730163   0,92889083   0,44739839   0,35639734   3,26975529   8,97440147   6,62312765   6,72041730
         #       : 2,83292537   2,44746100   1,42489491   1,40036676   0,66962731   0,69054210   3,97521200  10,32733744   7,81438659   7,24869337
 
 
         # FEATURES: now we got a Sonogram and extract statistical features
-    
+
         # SSD: Statistical Spectrum Descriptors
         if (extract_ssd or extract_tssd):
             ssd = calc_statistical_features(matrix)
             ssd_list.append(ssd.flatten(FLATTEN_ORDER))
 
         # v210715
-        # Python: 2.97307486   5.10356599   0.65305978   2.35489911   2.439558     0.009812     8.1447095 
+        # Python: 2.97307486   5.10356599   0.65305978   2.35489911   2.439558     0.009812     8.1447095
         #       : 4.72262845   7.30899976   0.17862996   2.10446264   4.58595337   0.25538117  12.83339251
-        #       : 4.77858109   5.52646859   0.23911764   2.9056742    4.96338019   0.589568    13.6683906 
+        #       : 4.77858109   5.52646859   0.23911764   2.9056742    4.96338019   0.589568    13.6683906
         #       : 4.43503421   3.69422906   0.41473155   3.06743402   4.33220988   0.88354694  10.89393754
         #       : 3.77216546   2.3993334    0.84001713   4.35548197   3.65140589   1.01199696  11.07806891
-        #       : 3.60563073   2.09907968   1.49906811   7.07183968   3.35596471   1.00619842  11.2872743 
+        #       : 3.60563073   2.09907968   1.49906811   7.07183968   3.35596471   1.00619842  11.2872743
         #       : 3.56816128   2.20237398   1.69790808   7.57870223   3.33806767   1.10826324  10.84965392
         #       : 3.43734647   2.38648202   1.59655791   6.86704341   3.23361995   1.10198021  11.89470587
         #       : 3.18466303   2.39479532   1.99223131   8.83987184   2.8819031    0.93982524  11.28737448
         #       : 2.90996406   1.85412568   1.97247446   8.36738395   2.68063918   0.81760102   9.64247378
-        
+
         # Matlab: 2,97309758   5,11366933   0,65306558   2,35489605   2,43956735   0,00982439   8,14473582
         #       : 4,72264163   7,32338449   0,17863061   2,10444843   4,58593777   0,25568703  12,83335168
         #       : 4,77859306   5,53731457   0,23911126   2,90567055   4,96338616   0,58959588  13,66839858
@@ -670,20 +683,20 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         if (mod_ampl_limit >= fft_size):
             raise(ValueError("mod_ampl_limit option must be smaller than FFT window size (" + str(fft_size) +  ")."))
             # NOTE: in fact only half of it (256) makes sense due to the symmetry of the FFT result
-        
+
         rhythm_patterns = np.zeros((matrix.shape[0], fft_size), dtype=np.complex128)
         #rhythm_patterns = np.zeros((matrix.shape[0], fft_size), dtype=np.float64)
 
         # real_matrix = abs(matrix)
 
         for b in range(0,matrix.shape[0]):
-        
+
             rhythm_patterns[b,:] = fft(matrix[b,:], fft_size)
 
             # tried this instead, but ...
             #rhythm_patterns[b,:] = fft(real_matrix[b,:], fft_size)   # ... no performance improvement
             #rhythm_patterns[b,:] = rfft(real_matrix[b,:], fft_size)  # ... different output values
-        
+
         rhythm_patterns = rhythm_patterns / 256  # why 256?
 
         # convert from complex128 to float64 (real)
@@ -751,7 +764,7 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
             features["ssd"] = np.array(ssd_list)
         else:
             features["ssd"]  = np.mean(np.asarray(ssd_list), axis=0)
-        
+
     if extract_rh:
         if return_segment_features:
             features["rh"] = np.array(rh_list)
