@@ -10,14 +10,21 @@ Batch MP3 to WAV conversion
   use one of three external decoders to batch convert folders with mp3 to wav files
 '''
 
+# TODO: tons of PEP-8
+
 import os
 import gc # garbage collector
 import unicsv # unicode csv library (installed via pip install unicsv)
 import time # for time measuring
+import subprocess  # for subprocess calls
 import argparse
 import numpy as np
 
-from audiofile_read import * # reading wav and mp3 files
+from audiofile_read import (
+    audiofile_read,
+    mp3_decode,
+    DecoderException
+)  # reading wav and mp3 files
 import rp_extract as rp # Rhythm Pattern extractor
 
 

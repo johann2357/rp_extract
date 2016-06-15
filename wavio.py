@@ -97,6 +97,7 @@ def writewav24(filename, rate, data):
     -------
     Create a 3 second 440 Hz sine wave.
 
+    >>> import numpy as np
     >>> rate = 22050  # samples per second
     >>> T = 3         # sample duration (seconds)
     >>> f = 440.0     # sound frequency (Hz)

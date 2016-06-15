@@ -1,4 +1,5 @@
 /.pydevproject
 *.pyc
+*.swp
 /.idea/
 *.py
