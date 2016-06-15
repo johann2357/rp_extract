@@ -568,7 +568,7 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
 
         # Map to Bark Scale
         if transform_bark:
-            matrix = transform2bark(matrix,freq_axis,n_bark_bands)
+            matrix = transform2bark(matrix, freq_axis, n_bark_bands)
 
         # v210715
         # Python:    255.991763   1556.884100   5083.2410768    471.9996609   124.789186   278.299555  550251.385306   6658534.245939   7807158.207639  5883479.99407189
@@ -578,7 +578,6 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         # Matlab:    254,907114   1559,322302    5081,720289    475,1506933   123,836056    278,46723  550306,288536   6659229,587607   7807194,027765   5883487,07036370
         #       :  77118,196343  10447,961479   22605,559124  13266,4432995  2591,064037   1368,48462  675116,996782  23400723,570438   6300124,132022   8039688,83884099
         #       : 127172,560642  91251,040768   15246,639683  16286,4542687  1414,053166   2166,42874  868063,055613  20681863,052695   8971108,607811   5919136,16752791
-
 
         # Spectral Masking
         if spectral_masking:
@@ -593,7 +592,6 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         #       : 100704,175421    27602,34142  27161,901160  16288,924458  2884,94883  1842,86020  1021368,99046  29229118,99738  10653999,341989  11182806,7524195
         #       : 426751,992198   262523,89306  43524,970883  41085,415594  4253,42029  4617,35691  1314966,73269  31353021,99155  12416968,806879   9673951,88376021
 
-
         # Map to Decibel Scale
         if transform_db:
             matrix = transform2db(matrix)
@@ -606,7 +604,6 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         # Matlab: 41,13118599  35,33875324  39,42854087  34,23583526  27,37028596  27,02255437  58,20164218  70,20418000  69,46465651  68,56934684
         #       : 50,03047477  44,40945923  44,33960164  42,11892409  34,60138115  32,65492392  60,09182668  74,65815725  70,27512665  70,48550820
         #       : 56,30175557  54,19168835  46,38738489  46,13687684  36,28738298  36,64393446  61,18914765  74,96279407  70,94015590  69,85603922
-
 
         # Transform Phon
         if transform_phon:
@@ -621,7 +618,6 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         #       : 47,03047477  41,40945923  41,33960164  38,89865511  29,50172644  27,06865491  57,09182668  71,65815725  67,27512665  67,48550820
         #       : 55,02292596  52,91285875  45,10855528  44,85804723  34,36668514  34,76908687  59,91031805  73,68396446  69,66132629  68,57720962
 
-
         # Transform Sone
         if transform_sone:
             matrix = transform2sone(matrix)
@@ -635,11 +631,9 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         #       : 1,62793994   1,10262783   1,09730163   0,92889083   0,44739839   0,35639734   3,26975529   8,97440147   6,62312765   6,72041730
         #       : 2,83292537   2,44746100   1,42489491   1,40036676   0,66962731   0,69054210   3,97521200  10,32733744   7,81438659   7,24869337
 
-
         # FEATURES: now we got a Sonogram and extract statistical features
-
         # SSD: Statistical Spectrum Descriptors
-        if (extract_ssd or extract_tssd):
+        if extract_ssd or extract_tssd:
             ssd = calc_statistical_features(matrix)
             ssd_list.append(ssd.flatten(FLATTEN_ORDER))
 
@@ -669,8 +663,8 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         # values verified
 
         # RP: RHYTHM PATTERNS
-        feature_part_xaxis1 = range(0,mod_ampl_limit)    # take first (opts.mod_ampl_limit) values of fft result including DC component
-        feature_part_xaxis2 = range(1,mod_ampl_limit+1)  # leave DC component and take next (opts.mod_ampl_limit) values of fft result
+        feature_part_xaxis1 = range(0, mod_ampl_limit)    # take first (opts.mod_ampl_limit) values of fft result including DC component
+        feature_part_xaxis2 = range(1, mod_ampl_limit + 1)  # leave DC component and take next (opts.mod_ampl_limit) values of fft result
 
         if (include_DC):
             feature_part_xaxis_rp = feature_part_xaxis1
@@ -678,10 +672,13 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
             feature_part_xaxis_rp = feature_part_xaxis2
 
         # 2nd FFT
-        fft_size = 2**(nextpow2(matrix.shape[1]))
+        fft_size = 2 ** (nextpow2(matrix.shape[1]))
 
         if (mod_ampl_limit >= fft_size):
-            raise(ValueError("mod_ampl_limit option must be smaller than FFT window size (" + str(fft_size) +  ")."))
+            raise(ValueError(
+                "mod_ampl_limit option must be smaller than FFT window size (" +
+                str(fft_size) + ")."
+            ))
             # NOTE: in fact only half of it (256) makes sense due to the symmetry of the FFT result
 
         rhythm_patterns = np.zeros((matrix.shape[0], fft_size), dtype=np.complex128)
@@ -689,9 +686,8 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
 
         # real_matrix = abs(matrix)
 
-        for b in range(0,matrix.shape[0]):
-
-            rhythm_patterns[b,:] = fft(matrix[b,:], fft_size)
+        for b in range(0, matrix.shape[0]):
+            rhythm_patterns[b, :] = fft(matrix[b, :], fft_size)
 
             # tried this instead, but ...
             #rhythm_patterns[b,:] = fft(real_matrix[b,:], fft_size)   # ... no performance improvement
@@ -700,16 +696,19 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         rhythm_patterns = rhythm_patterns / 256  # why 256?
 
         # convert from complex128 to float64 (real)
-        rp = np.abs(rhythm_patterns[:,feature_part_xaxis_rp]) # verified
+        rp = np.abs(rhythm_patterns[:, feature_part_xaxis_rp])  # verified
 
         # MVD: Modulation Variance Descriptors
         if extract_mvd:
-            mvd = calc_statistical_features(rp.transpose()) # verified
+            mvd = calc_statistical_features(rp.transpose())     # verified
             mvd_list.append(mvd.flatten(FLATTEN_ORDER))
 
         # RH: Rhythm Histograms - OPTION 1: before fluctuation_strength_weighting (as in Matlab)
         if extract_rh:
-            rh = np.sum(np.abs(rhythm_patterns[:,feature_part_xaxis2]),axis=0) #without DC component # verified
+            rh = np.sum(
+                np.abs(rhythm_patterns[:, feature_part_xaxis2]),
+                axis=0
+            )  # without DC component # verified
             rh_list.append(rh.flatten(FLATTEN_ORDER))
 
         # final steps for RP:
@@ -719,25 +718,23 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
 
             # modulation frequency x-axis (after 2nd FFT)
             # mod_freq_res = resolution of modulation frequency axis (0.17 Hz)
-            mod_freq_res  = 1 / (float(segment_size) / samplerate)
+            mod_freq_res = 1 / (float(segment_size) / samplerate)
 
             #  modulation frequencies along x-axis from index 0 to 256)
             mod_freq_axis = mod_freq_res * np.array(feature_part_xaxis_rp)
 
             #  fluctuation strength curve
-            fluct_curve = 1 / (mod_freq_axis/4 + 4/mod_freq_axis)
+            fluct_curve = 1 / (mod_freq_axis / 4 + 4 / mod_freq_axis)
 
             for b in range(rp.shape[0]):
-                rp[b,:] = rp[b,:] * fluct_curve #[feature_part_xaxis_rp]
+                rp[b, :] = rp[b, :] * fluct_curve  # [feature_part_xaxis_rp]
 
         #values verified
 
-
         # RH: Rhythm Histograms - OPTION 2 (after Fluctuation weighting)
         if extract_rh2:
-            rh2 = np.sum(rp,axis=0) #TODO: adapt to do always without DC component
+            rh2 = np.sum(rp, axis=0)  # TODO: adapt to do always without DC component
             rh2_list.append(rh2.flatten(FLATTEN_ORDER))
-
 
         # Gradient+Gauss filter
         #if extract_rp:
@@ -752,7 +749,6 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
 
         seg_pos = seg_pos + segment_size * step_width
 
-
     if extract_rp:
         if return_segment_features:
             features["rp"] = np.array(rp_list)
@@ -763,7 +759,7 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         if return_segment_features:
             features["ssd"] = np.array(ssd_list)
         else:
-            features["ssd"]  = np.mean(np.asarray(ssd_list), axis=0)
+            features["ssd"] = np.mean(np.asarray(ssd_list), axis=0)
 
     if extract_rh:
         if return_segment_features:
@@ -775,7 +771,7 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         if return_segment_features:
             features["mvd"] = np.array(mvd_list)
         else:
-            features["mvd"]  = np.mean(np.asarray(mvd_list), axis=0)
+            features["mvd"] = np.mean(np.asarray(mvd_list), axis=0)
 
     # NOTE: no return_segment_features for temporal features as they measure variation of features over time
 
@@ -783,7 +779,7 @@ def rp_extract( wavedata,                          # pcm (wav) signal data norma
         features["tssd"] = calc_statistical_features(np.asarray(ssd_list).transpose()).flatten(FLATTEN_ORDER)
 
     if extract_trh:
-        features["trh"]  = calc_statistical_features(np.asarray(rh_list).transpose()).flatten(FLATTEN_ORDER)
+        features["trh"] = calc_statistical_features(np.asarray(rh_list).transpose()).flatten(FLATTEN_ORDER)
 
     if return_segment_features:
         # also include the segment positions in the result
